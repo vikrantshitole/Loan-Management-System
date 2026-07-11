@@ -34,3 +34,17 @@ body {
   margin: 0 0 0.5rem;
   color: #4a5568;
 }
+
+.home-nav {
+  margin-top: 1.5rem;
+}
+
+.home-nav a {
+  color: #2c5282;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.home-nav a:hover {
+  text-decoration: underline;
+}

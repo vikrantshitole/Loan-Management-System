@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 
 const HomePage = () => {
@@ -25,6 +26,9 @@ const HomePage = () => {
         API status:{' '}
         <strong>{apiStatus === 'connected' ? 'Connected' : 'Disconnected'}</strong>
       </p>
+      <nav className="home-nav">
+        <Link to="/emi-calculator">EMI Calculator</Link>
+      </nav>
     </main>
   );
 };
