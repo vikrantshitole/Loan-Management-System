@@ -22,7 +22,8 @@ const LoginPage = () => {
 
     try {
       const result = await login(form);
-      const redirectTo = location.state?.from || (result.user.role === 'admin' ? '/admin' : '/');
+      const redirectTo =
+        location.state?.from || (result.user.role === 'admin' ? '/admin' : '/dashboard');
       navigate(redirectTo, { replace: true });
     } catch (loginError) {
       setError(loginError.response?.data?.message || 'Unable to sign in');

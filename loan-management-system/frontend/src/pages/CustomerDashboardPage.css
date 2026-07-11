@@ -1,0 +1,127 @@
+.customer-dashboard {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 0.5rem;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #4a5568;
+}
+
+.dashboard-error {
+  color: #c53030;
+}
+
+.empty-state,
+.loan-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem;
+}
+
+.empty-state {
+  margin-top: 1.5rem;
+}
+
+.loan-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.loan-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.loan-date {
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.loan-card h2 {
+  margin: 0 0 0.35rem;
+}
+
+.loan-purpose {
+  margin: 0 0 1rem;
+  color: #4a5568;
+}
+
+.loan-card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+}
+
+.loan-card-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.loan-card-stats dt {
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+.loan-card-stats dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.loan-remarks {
+  margin: 0 0 1rem;
+  padding: 0.75rem;
+  background: #f7fafc;
+  color: #4a5568;
+  font-size: 0.92rem;
+}
+
+.loan-detail-link {
+  display: inline-block;
+  color: #2c5282;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loan-detail-link:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fefcbf;
+  color: #975a16;
+}
+
+.status-under-review {
+  background: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.status-approved {
+  background: #f0fff4;
+  color: #276749;
+}
+
+.status-rejected {
+  background: #fff5f5;
+  color: #c53030;
+}
