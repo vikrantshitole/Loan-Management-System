@@ -6,6 +6,7 @@ import LoginPage from '../pages/LoginPage';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
 import CustomerDashboardContainer from '../pages/CustomerDashboardContainer';
 import LoanStatusPage from '../pages/LoanStatusPage';
+import PaymentHistoryPage from '../pages/PaymentHistoryPage';
 
 const AppRoutes = () => {
   return (
@@ -19,6 +20,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <CustomerDashboardContainer />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/loans/:id/payments"
+          element={
+            <ProtectedRoute>
+              <PaymentHistoryPage />
             </ProtectedRoute>
           }
         />

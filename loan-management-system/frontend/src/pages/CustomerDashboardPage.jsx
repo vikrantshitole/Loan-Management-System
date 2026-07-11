@@ -69,6 +69,11 @@ const CustomerDashboardPage = ({ loans, loading, error }) => {
               <Link to={`/loans/${loan.id}`} className="loan-detail-link">
                 View details
               </Link>
+              {loan.status === 'Approved' ? (
+                <Link to={`/loans/${loan.id}/payments`} className="loan-detail-link">
+                  Payment history
+                </Link>
+              ) : null}
             </article>
           ))}
         </section>

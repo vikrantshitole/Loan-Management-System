@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getLoanById } from '../services/loan.service';
+import LoanPaymentsSection from '../components/LoanPaymentsSection';
 import statusClassName from '../utils/status';
 import { formatCurrency } from '../utils/format';
 import './LoanStatusPage.css';
@@ -18,23 +19,23 @@ const LoanStatusPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const loadLoan = async () => {
-      setLoading(true);
-      setError('');
+  const loadLoan = useCallback(async () => {
+    setLoading(true);
+    setError('');
 
-      try {
-        const data = await getLoanById(id);
-        setLoan(data);
-      } catch (loadError) {
-        setError(loadError.response?.data?.message || 'Unable to load loan status');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadLoan();
+    try {
+      const data = await getLoanById(id);
+      setLoan(data);
+    } catch (loadError) {
+      setError(loadError.response?.data?.message || 'Unable to load loan status');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    loadLoan();
+  }, [loadLoan]);
 
   if (loading) {
     return <main className="loan-status-page">Loading loan status…</main>;
@@ -101,10 +102,7 @@ const LoanStatusPage = () => {
                   : '—'
               }
             />
-            <DetailItem
-              label="Total paid"
-              value={formatCurrency(loan.totalPaid || 0)}
-            />
+            <DetailItem label="Total paid" value={formatCurrency(loan.totalPaid || 0)} />
           </dl>
         </article>
 
@@ -123,6 +121,15 @@ const LoanStatusPage = () => {
           ) : null}
         </article>
       </section>
+
+      {loan.status === 'Approved' ? (
+        <LoanPaymentsSection
+          loanId={loan.id}
+          loanStatus={loan.status}
+          outstandingBalance={loan.outstandingBalance}
+          onPaymentRecorded={loadLoan}
+        />
+      ) : null}
     </main>
   );
 };

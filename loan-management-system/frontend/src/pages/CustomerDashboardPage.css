@@ -90,6 +90,7 @@
 
 .loan-detail-link {
   display: inline-block;
+  margin-right: 1rem;
   color: #2c5282;
   font-weight: 600;
   text-decoration: none;
