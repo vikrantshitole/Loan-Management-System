@@ -1,18 +1,42 @@
 /**
- * Calculates EMI using the standard reducing-balance formula.
+ * Standard reducing-balance EMI formula:
  *
- * EMI = P × R × (1+R)^N / ((1+R)^N - 1)
+ *   EMI = P × R × (1+R)^N / ((1+R)^N − 1)
  *
- * Where:
- * - P = principal (loan amount)
- * - R = monthly interest rate (annual rate / 12 / 100)
- * - N = tenure in months
+ * P = principal, R = monthly rate (annual% / 12 / 100), N = tenure in months
  */
+
+const CURRENCY_PRECISION = 2;
+const RATE_PRECISION = 4;
+
+const round = (value, precision) => {
+  const factor = 10 ** precision;
+  return Math.round((value + Number.EPSILON) * factor) / factor;
+};
+
+const roundCurrency = (value) => round(value, CURRENCY_PRECISION);
+const roundRate = (value) => round(value, RATE_PRECISION);
+
+const toMonthlyRate = (annualInterestRate) => Number(annualInterestRate) / 12 / 100;
+
 const calculateEmiBreakdown = ({ loanAmount, interestRate, durationMonths }) => {
   const principal = Number(loanAmount);
   const annualRate = Number(interestRate);
   const tenure = Number(durationMonths);
-  const monthlyRate = annualRate / 12 / 100;
+
+  if (!Number.isFinite(principal) || principal <= 0) {
+    throw new Error('Loan amount must be a positive number');
+  }
+
+  if (!Number.isFinite(annualRate) || annualRate < 0) {
+    throw new Error('Interest rate must be a non-negative number');
+  }
+
+  if (!Number.isInteger(tenure) || tenure <= 0) {
+    throw new Error('Duration must be a positive integer');
+  }
+
+  const monthlyRate = toMonthlyRate(annualRate);
 
   let emi;
   let totalPayment;
@@ -33,16 +57,20 @@ const calculateEmiBreakdown = ({ loanAmount, interestRate, durationMonths }) => 
     loanAmount: roundCurrency(principal),
     interestRate: annualRate,
     durationMonths: tenure,
+    monthlyInterestRate: roundRate(monthlyRate * 100),
     emi: roundCurrency(emi),
     totalPayment: roundCurrency(totalPayment),
     totalInterest: roundCurrency(totalInterest),
-    monthlyRate: roundRate(monthlyRate * 100),
+    breakdown: {
+      principal: roundCurrency(principal),
+      interest: roundCurrency(totalInterest),
+      tenureMonths: tenure,
+    },
   };
 };
 
-const roundCurrency = (value) => Math.round(value * 100) / 100;
-const roundRate = (value) => Math.round(value * 10000) / 10000;
-
 module.exports = {
   calculateEmiBreakdown,
+  toMonthlyRate,
+  roundCurrency,
 };

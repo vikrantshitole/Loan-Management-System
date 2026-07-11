@@ -23,7 +23,6 @@ router.post(
 
 router.post(
   '/calculate-emi',
-  authenticate,
   validate(calculateEmiRules),
   loanController.calculateEmi
 );

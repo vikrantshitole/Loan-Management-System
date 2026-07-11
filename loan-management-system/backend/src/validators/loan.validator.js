@@ -40,8 +40,8 @@ const calculateEmiRules = [
   body('interestRate')
     .notEmpty()
     .withMessage('Interest rate is required')
-    .isFloat({ min: 0.1, max: 30 })
-    .withMessage('Interest rate must be between 0.1 and 30'),
+    .isFloat({ min: 0, max: 30 })
+    .withMessage('Interest rate must be between 0 and 30'),
   body('durationMonths')
     .notEmpty()
     .withMessage('Duration is required')
