@@ -1,7 +1,9 @@
-import { Link } from 'react-router-dom';
 import useEmiCalculator from '../hooks/useEmiCalculator';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import FormField from '../components/ui/FormField';
+import PageHeader from '../components/layout/PageHeader';
 import { formatCurrency, LOAN_LIMITS } from '../utils/format';
-import './EmiCalculatorPage.css';
 
 const FieldError = ({ show, message }) => {
   if (!show || !message) {
@@ -26,82 +28,71 @@ const EmiCalculatorPage = () => {
   } = useEmiCalculator();
 
   return (
-    <main className="emi-page">
-      <header className="emi-header">
-        <Link to="/" className="back-link">
-          ← Home
-        </Link>
-        <h1>EMI Calculator</h1>
-        <p>
-          Live calculation using the reducing-balance formula, verified against the backend API.
-        </p>
-      </header>
+    <div className="public-page">
+      <PageHeader
+        title="EMI Calculator"
+        description="Live calculation using the reducing-balance formula, verified against the backend API."
+      />
 
       <section className="emi-layout">
-        <form
-          className="emi-form"
-          onSubmit={(event) => event.preventDefault()}
-          noValidate
-        >
-          <label className="field">
-            <span>Loan amount</span>
-            <input
-              type="number"
-              name="loanAmount"
-              min="1"
-              max={LOAN_LIMITS.maxAmount}
-              step="1000"
-              value={values.loanAmount}
-              onChange={(event) => updateField('loanAmount', event.target.value)}
-              onBlur={() => touchField('loanAmount')}
-              placeholder="e.g. 500000"
-            />
-            <FieldError show={touched.loanAmount} message={errors.loanAmount} />
-          </label>
+        <Card title="Loan inputs">
+          <form onSubmit={(event) => event.preventDefault()} noValidate>
+            <FormField label="Loan amount">
+              <input
+                type="number"
+                name="loanAmount"
+                min="1"
+                max={LOAN_LIMITS.maxAmount}
+                step="1000"
+                value={values.loanAmount}
+                onChange={(event) => updateField('loanAmount', event.target.value)}
+                onBlur={() => touchField('loanAmount')}
+                placeholder="e.g. 500000"
+              />
+              <FieldError show={touched.loanAmount} message={errors.loanAmount} />
+            </FormField>
 
-          <label className="field">
-            <span>Annual interest rate (%)</span>
-            <input
-              type="number"
-              name="interestRate"
-              min={LOAN_LIMITS.minInterestRate}
-              max={LOAN_LIMITS.maxInterestRate}
-              step="0.1"
-              value={values.interestRate}
-              onChange={(event) => updateField('interestRate', event.target.value)}
-              onBlur={() => touchField('interestRate')}
-              placeholder="e.g. 10"
-            />
-            <FieldError show={touched.interestRate} message={errors.interestRate} />
-          </label>
+            <FormField label="Annual interest rate (%)">
+              <input
+                type="number"
+                name="interestRate"
+                min={LOAN_LIMITS.minInterestRate}
+                max={LOAN_LIMITS.maxInterestRate}
+                step="0.1"
+                value={values.interestRate}
+                onChange={(event) => updateField('interestRate', event.target.value)}
+                onBlur={() => touchField('interestRate')}
+                placeholder="e.g. 10"
+              />
+              <FieldError show={touched.interestRate} message={errors.interestRate} />
+            </FormField>
 
-          <label className="field">
-            <span>Duration (months)</span>
-            <input
-              type="number"
-              name="durationMonths"
-              min={LOAN_LIMITS.minDurationMonths}
-              max={LOAN_LIMITS.maxDurationMonths}
-              step="1"
-              value={values.durationMonths}
-              onChange={(event) => updateField('durationMonths', event.target.value)}
-              onBlur={() => touchField('durationMonths')}
-              placeholder="e.g. 24"
-            />
-            <FieldError show={touched.durationMonths} message={errors.durationMonths} />
-          </label>
+            <FormField label="Duration (months)">
+              <input
+                type="number"
+                name="durationMonths"
+                min={LOAN_LIMITS.minDurationMonths}
+                max={LOAN_LIMITS.maxDurationMonths}
+                step="1"
+                value={values.durationMonths}
+                onChange={(event) => updateField('durationMonths', event.target.value)}
+                onBlur={() => touchField('durationMonths')}
+                placeholder="e.g. 24"
+              />
+              <FieldError show={touched.durationMonths} message={errors.durationMonths} />
+            </FormField>
 
-          <button type="button" className="secondary-button" onClick={reset}>
-            Reset
-          </button>
-        </form>
+            <Button type="button" variant="secondary" onClick={reset}>
+              Reset
+            </Button>
+          </form>
+        </Card>
 
-        <aside className="emi-result" aria-live="polite">
+        <Card title="Breakdown" aria-live="polite">
           {!liveResult ? (
-            <div className="emi-empty">
-              <h2>Breakdown</h2>
-              <p>Enter a valid amount, rate, and duration to see live EMI results.</p>
-            </div>
+            <p className="muted-text">
+              Enter a valid amount, rate, and duration to see live EMI results.
+            </p>
           ) : (
             <>
               <div className="emi-highlight">
@@ -141,19 +132,16 @@ const EmiCalculatorPage = () => {
               </div>
             </>
           )}
-        </aside>
+        </Card>
       </section>
 
-      <section className="emi-formula">
-        <h2>Formula</h2>
-        <p>
+      <Card title="Formula" className="formula-card">
+        <p className="muted-text">
           EMI = P × R × (1+R)<sup>N</sup> / ((1+R)<sup>N</sup> − 1)
         </p>
-        <p>
-          P = principal, R = monthly interest rate, N = tenure in months.
-        </p>
-      </section>
-    </main>
+        <p className="muted-text">P = principal, R = monthly interest rate, N = tenure in months.</p>
+      </Card>
+    </div>
   );
 };
 

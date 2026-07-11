@@ -1,20 +1,24 @@
 import { useState } from 'react';
-import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import * as authService from '../services/auth.service';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import FormField from '../components/ui/FormField';
 
-const LoginPage = () => {
-  const { login, isAuthenticated, isAdmin } = useAuth();
+const RegisterPage = () => {
+  const { isAuthenticated, login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   if (isAuthenticated) {
-    return <Navigate to={isAdmin ? '/admin' : '/dashboard'} replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleSubmit = async (event) => {
@@ -23,12 +27,11 @@ const LoginPage = () => {
     setError('');
 
     try {
-      const result = await login(form);
-      const redirectTo =
-        location.state?.from || (result.user.role === 'admin' ? '/admin' : '/dashboard');
-      navigate(redirectTo, { replace: true });
-    } catch (loginError) {
-      setError(loginError.response?.data?.message || 'Unable to sign in');
+      await authService.register(form);
+      await login({ email: form.email, password: form.password });
+      navigate('/dashboard', { replace: true });
+    } catch (registerError) {
+      setError(registerError.response?.data?.message || 'Unable to create account');
     } finally {
       setSubmitting(false);
     }
@@ -36,14 +39,22 @@ const LoginPage = () => {
 
   return (
     <div className="auth-layout">
-      <Card title="Sign in" subtitle="Access your loan dashboard" className="auth-card">
+      <Card title="Create account" subtitle="Register as a customer" className="auth-card">
         <form onSubmit={handleSubmit} noValidate>
+          <FormField label="Full name">
+            <input
+              type="text"
+              value={form.name}
+              onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
+              required
+            />
+          </FormField>
+
           <FormField label="Email">
             <input
               type="email"
               value={form.email}
               onChange={(event) => setForm((current) => ({ ...current, email: event.target.value }))}
-              placeholder="you@example.com"
               required
             />
           </FormField>
@@ -55,7 +66,7 @@ const LoginPage = () => {
               onChange={(event) =>
                 setForm((current) => ({ ...current, password: event.target.value }))
               }
-              placeholder="Enter password"
+              minLength={6}
               required
             />
           </FormField>
@@ -63,16 +74,16 @@ const LoginPage = () => {
           {error ? <p className="form-error">{error}</p> : null}
 
           <Button type="submit" disabled={submitting}>
-            {submitting ? 'Signing in…' : 'Sign in'}
+            {submitting ? 'Creating account…' : 'Register'}
           </Button>
         </form>
 
         <p className="muted-text" style={{ marginTop: '1rem' }}>
-          New customer? <Link to="/register">Create an account</Link>
+          Already registered? <Link to="/login">Sign in</Link>
         </p>
       </Card>
     </div>
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

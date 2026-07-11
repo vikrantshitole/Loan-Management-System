@@ -1,7 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getPaymentHistory, recordPayment } from '../services/payment.service';
+import Button from './ui/Button';
+import Card from './ui/Card';
+import FormField from './ui/FormField';
+import Loader from './ui/Loader';
+import Table from './ui/Table';
 import { formatCurrency } from '../utils/format';
-import './LoanPaymentsSection.css';
+
+const PAYMENT_COLUMNS = [
+  { key: 'date', label: 'Date' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'remaining', label: 'Remaining balance' },
+];
 
 const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPaymentRecorded }) => {
   const [history, setHistory] = useState(null);
@@ -52,7 +62,7 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
   };
 
   return (
-    <section className="payments-section">
+    <Card className="payments-card">
       <div className="payments-header">
         <h2>Payment history</h2>
         {history ? (
@@ -68,12 +78,11 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
         ) : null}
       </div>
 
-      {error ? <p className="payments-error">{error}</p> : null}
+      {error ? <p className="page-error">{error}</p> : null}
 
       {canAddPayment ? (
         <form className="payment-form" onSubmit={handleSubmit}>
-          <label className="field">
-            <span>Payment amount</span>
+          <FormField label="Payment amount">
             <input
               type="number"
               min="1"
@@ -84,40 +93,29 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
               placeholder={`Max ${formatCurrency(outstandingBalance)}`}
               required
             />
-          </label>
-          <button type="submit" disabled={submitting}>
+          </FormField>
+          <Button type="submit" disabled={submitting}>
             {submitting ? 'Recording…' : 'Add payment'}
-          </button>
+          </Button>
         </form>
       ) : null}
 
       {loading ? (
-        <p>Loading payment history…</p>
+        <Loader label="Loading payment history…" />
       ) : !history?.payments.length ? (
         <p className="muted-text">No payments recorded yet.</p>
       ) : (
-        <div className="payments-table-wrapper">
-          <table className="payments-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Remaining balance</th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.payments.map((payment) => (
-                <tr key={payment.id}>
-                  <td>{new Date(payment.paymentDate).toLocaleString('en-IN')}</td>
-                  <td>{formatCurrency(payment.amount)}</td>
-                  <td>{formatCurrency(payment.remainingBalance)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Table columns={PAYMENT_COLUMNS}>
+          {history.payments.map((payment) => (
+            <tr key={payment.id}>
+              <td>{new Date(payment.paymentDate).toLocaleString('en-IN')}</td>
+              <td>{formatCurrency(payment.amount)}</td>
+              <td>{formatCurrency(payment.remainingBalance)}</td>
+            </tr>
+          ))}
+        </Table>
       )}
-    </section>
+    </Card>
   );
 };
 

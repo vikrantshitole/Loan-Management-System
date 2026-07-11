@@ -2,9 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getLoanById } from '../services/loan.service';
 import LoanPaymentsSection from '../components/LoanPaymentsSection';
-import statusClassName from '../utils/status';
+import Card from '../components/ui/Card';
+import Loader from '../components/ui/Loader';
+import StatusBadge from '../components/ui/StatusBadge';
 import { formatCurrency } from '../utils/format';
-import './LoanStatusPage.css';
 
 const DetailItem = ({ label, value }) => (
   <div className="detail-item">
@@ -38,42 +39,39 @@ const LoanStatusPage = () => {
   }, [loadLoan]);
 
   if (loading) {
-    return <main className="loan-status-page">Loading loan status…</main>;
+    return <Loader fullPage label="Loading loan status…" />;
   }
 
   if (error) {
     return (
-      <main className="loan-status-page">
+      <>
         <Link to="/dashboard" className="back-link">
           ← My Loans
         </Link>
-        <p className="status-error">{error}</p>
-      </main>
+        <p className="page-error">{error}</p>
+      </>
     );
   }
 
   return (
-    <main className="loan-status-page">
+    <>
       <Link to="/dashboard" className="back-link">
         ← My Loans
       </Link>
 
-      <header className="status-header">
+      <header className="loan-status-header">
         <div>
-          <span className={`status-badge status-${statusClassName(loan.status)}`}>
-            {loan.status}
-          </span>
+          <StatusBadge status={loan.status} />
           <h1>{formatCurrency(loan.loanAmount)}</h1>
-          <p>{loan.purpose}</p>
+          <p className="loan-purpose">{loan.purpose}</p>
         </div>
-        <div className="status-meta">
-          <span>Applied on {new Date(loan.createdAt).toLocaleDateString('en-IN')}</span>
+        <div className="muted-text">
+          Applied on {new Date(loan.createdAt).toLocaleDateString('en-IN')}
         </div>
       </header>
 
       <section className="status-grid">
-        <article className="status-panel">
-          <h2>Loan details</h2>
+        <Card title="Loan details">
           <dl className="detail-grid">
             <DetailItem label="Interest rate" value={`${loan.interestRate}%`} />
             <DetailItem label="Duration" value={`${loan.durationMonths} months`} />
@@ -104,10 +102,9 @@ const LoanStatusPage = () => {
             />
             <DetailItem label="Total paid" value={formatCurrency(loan.totalPaid || 0)} />
           </dl>
-        </article>
+        </Card>
 
-        <article className="status-panel">
-          <h2>Approval remarks</h2>
+        <Card title="Approval remarks">
           {loan.remarks ? (
             <p className="remarks-box">{loan.remarks}</p>
           ) : (
@@ -115,11 +112,11 @@ const LoanStatusPage = () => {
           )}
 
           {loan.approver ? (
-            <p className="reviewer-note">
+            <p className="muted-text" style={{ marginTop: '1rem' }}>
               Reviewed by {loan.approver.name} ({loan.approver.email})
             </p>
           ) : null}
-        </article>
+        </Card>
       </section>
 
       {loan.status === 'Approved' ? (
@@ -130,7 +127,7 @@ const LoanStatusPage = () => {
           onPaymentRecorded={loadLoan}
         />
       ) : null}
-    </main>
+    </>
   );
 };
 

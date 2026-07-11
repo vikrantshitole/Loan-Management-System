@@ -1,0 +1,258 @@
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.hero-actions a {
+  text-decoration: none;
+}
+
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.card-actions a {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.card-actions a:hover {
+  text-decoration: underline;
+}
+
+.loan-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.loan-date {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.loan-amount {
+  font-size: 1.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.loan-purpose {
+  margin-bottom: 1rem;
+  color: var(--color-text-muted);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stat-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-grid dt {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.stat-grid dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.remarks-box {
+  margin: 0;
+  padding: 0.85rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+}
+
+.detail-item dt {
+  margin-bottom: 0.2rem;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.detail-item dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1rem;
+}
+
+.loan-status-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.loan-status-header h1 {
+  margin: 0.5rem 0;
+}
+
+.emi-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.emi-highlight {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.emi-label {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.emi-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.emi-stats {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.emi-stats div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.emi-stats dt {
+  color: var(--color-text-muted);
+}
+
+.emi-stats dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.verify-badge {
+  padding: 0.65rem 0.8rem;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.verify-idle {
+  background: #f8fafc;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.verify-verifying {
+  background: #eff6ff;
+  color: var(--color-primary);
+  border-color: #bfdbfe;
+}
+
+.verify-verified {
+  background: #f0fdf4;
+  color: var(--color-success);
+  border-color: #bbf7d0;
+}
+
+.verify-error {
+  background: #fef2f2;
+  color: var(--color-danger);
+  border-color: #fecaca;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.action-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.payments-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.payments-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}
+
+.payment-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.payment-form .form-field {
+  flex: 1;
+  min-width: 220px;
+  margin-bottom: 0;
+}
+
+.payments-card,
+.formula-card {
+  margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+  .status-grid,
+  .detail-grid,
+  .emi-layout,
+  .loan-status-header {
+    grid-template-columns: 1fr;
+  }
+
+  .loan-status-header {
+    display: grid;
+  }
+
+  .emi-value {
+    font-size: 1.6rem;
+  }
+}

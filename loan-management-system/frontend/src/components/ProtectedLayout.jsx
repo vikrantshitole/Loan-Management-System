@@ -1,12 +1,14 @@
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import AppLayout from './layout/AppLayout';
+import Loader from './ui/Loader';
 
-const ProtectedRoute = ({ children, adminOnly = false }) => {
+const ProtectedLayout = ({ adminOnly = false }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    return <main className="page-loading">Loading session…</main>;
+    return <Loader fullPage label="Loading session…" />;
   }
 
   if (!isAuthenticated) {
@@ -17,7 +19,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     return <Navigate to="/" replace />;
   }
 
-  return children;
+  return (
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  );
 };
 
-export default ProtectedRoute;
+export default ProtectedLayout;

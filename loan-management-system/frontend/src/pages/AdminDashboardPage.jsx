@@ -1,16 +1,28 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { getLoans, updateLoanStatus } from '../services/loan.service';
+import Button from '../components/ui/Button';
+import FormField from '../components/ui/FormField';
+import Loader from '../components/ui/Loader';
+import Modal from '../components/ui/Modal';
+import PageHeader from '../components/layout/PageHeader';
+import StatusBadge from '../components/ui/StatusBadge';
+import Table from '../components/ui/Table';
 import { formatCurrency } from '../utils/format';
-import './AdminDashboardPage.css';
 
 const STATUS_FILTERS = ['All', 'Pending', 'Under Review', 'Approved', 'Rejected'];
 
-const statusClassName = (status) => status.toLowerCase().replace(/\s+/g, '-');
+const ADMIN_COLUMNS = [
+  { key: 'customer', label: 'Customer' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'rate', label: 'Rate' },
+  { key: 'duration', label: 'Duration' },
+  { key: 'purpose', label: 'Purpose' },
+  { key: 'status', label: 'Status' },
+  { key: 'remarks', label: 'Remarks' },
+  { key: 'actions', label: 'Actions' },
+];
 
 const AdminDashboardPage = () => {
-  const { user, logout } = useAuth();
   const [loans, setLoans] = useState([]);
   const [statusFilter, setStatusFilter] = useState('Pending');
   const [loading, setLoading] = useState(true);
@@ -71,27 +83,52 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const renderActions = (loan) => {
+    if (loan.status === 'Pending') {
+      return (
+        <>
+          <Button size="sm" variant="secondary" onClick={() => openAction(loan, 'Under Review')}>
+            Review
+          </Button>
+          <Button size="sm" onClick={() => openAction(loan, 'Approved')}>
+            Approve
+          </Button>
+          <Button size="sm" variant="danger" onClick={() => openAction(loan, 'Rejected')}>
+            Reject
+          </Button>
+        </>
+      );
+    }
+
+    if (loan.status === 'Under Review') {
+      return (
+        <>
+          <Button size="sm" onClick={() => openAction(loan, 'Approved')}>
+            Approve
+          </Button>
+          <Button size="sm" variant="danger" onClick={() => openAction(loan, 'Rejected')}>
+            Reject
+          </Button>
+        </>
+      );
+    }
+
+    if (loan.status === 'Approved' || loan.status === 'Rejected') {
+      return <span className="muted-text">Finalized</span>;
+    }
+
+    return null;
+  };
+
   return (
-    <main className="admin-page">
-      <header className="admin-header">
-        <div>
-          <Link to="/" className="back-link">
-            ← Home
-          </Link>
-          <h1>Admin Dashboard</h1>
-          <p>Review pending applications, approve loans, or reject with remarks.</p>
-        </div>
-        <div className="admin-actions">
-          <span>{user?.name}</span>
-          <button type="button" className="secondary-button" onClick={logout}>
-            Sign out
-          </button>
-        </div>
-      </header>
+    <>
+      <PageHeader
+        title="Admin Dashboard"
+        description="Review pending applications, approve loans, or reject with remarks."
+      />
 
       <section className="admin-toolbar">
-        <label>
-          <span>Status</span>
+        <FormField label="Status">
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
             {STATUS_FILTERS.map((status) => (
               <option key={status} value={status}>
@@ -99,124 +136,67 @@ const AdminDashboardPage = () => {
               </option>
             ))}
           </select>
-        </label>
-        <button type="button" className="secondary-button" onClick={loadLoans}>
+        </FormField>
+        <Button variant="secondary" onClick={loadLoans}>
           Refresh
-        </button>
+        </Button>
       </section>
 
-      {error ? <p className="admin-error">{error}</p> : null}
+      {error ? <p className="page-error">{error}</p> : null}
 
-      <section className="admin-table-wrapper">
-        {loading ? (
-          <p>Loading loans…</p>
-        ) : loans.length === 0 ? (
-          <p>No loans found for the selected filter.</p>
-        ) : (
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Customer</th>
-                <th>Amount</th>
-                <th>Rate</th>
-                <th>Duration</th>
-                <th>Purpose</th>
-                <th>Status</th>
-                <th>Remarks</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loans.map((loan) => (
-                <tr key={loan.id}>
-                  <td>
-                    <strong>{loan.customer?.name}</strong>
-                    <span>{loan.customer?.email}</span>
-                  </td>
-                  <td>{formatCurrency(loan.loanAmount)}</td>
-                  <td>{loan.interestRate}%</td>
-                  <td>{loan.durationMonths} mo</td>
-                  <td>{loan.purpose}</td>
-                  <td>
-                    <span className={`status-badge status-${statusClassName(loan.status)}`}>
-                      {loan.status}
-                    </span>
-                  </td>
-                  <td>{loan.remarks || '—'}</td>
-                  <td className="action-cell">
-                    {loan.status === 'Pending' ? (
-                      <>
-                        <button type="button" onClick={() => openAction(loan, 'Under Review')}>
-                          Review
-                        </button>
-                        <button type="button" onClick={() => openAction(loan, 'Approved')}>
-                          Approve
-                        </button>
-                        <button type="button" onClick={() => openAction(loan, 'Rejected')}>
-                          Reject
-                        </button>
-                      </>
-                    ) : null}
-                    {loan.status === 'Under Review' ? (
-                      <>
-                        <button type="button" onClick={() => openAction(loan, 'Approved')}>
-                          Approve
-                        </button>
-                        <button type="button" onClick={() => openAction(loan, 'Rejected')}>
-                          Reject
-                        </button>
-                      </>
-                    ) : null}
-                    {loan.status === 'Approved' || loan.status === 'Rejected' ? (
-                      <span className="muted-text">Finalized</span>
-                    ) : null}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      {loading ? (
+        <Loader fullPage label="Loading loans…" />
+      ) : (
+        <Table columns={ADMIN_COLUMNS} emptyMessage="No loans found for the selected filter.">
+          {loans.map((loan) => (
+            <tr key={loan.id}>
+              <td>
+                <strong>{loan.customer?.name}</strong>
+                <div className="muted-text">{loan.customer?.email}</div>
+              </td>
+              <td>{formatCurrency(loan.loanAmount)}</td>
+              <td>{loan.interestRate}%</td>
+              <td>{loan.durationMonths} mo</td>
+              <td>{loan.purpose}</td>
+              <td>
+                <StatusBadge status={loan.status} />
+              </td>
+              <td>{loan.remarks || '—'}</td>
+              <td className="action-cell">{renderActions(loan)}</td>
+            </tr>
+          ))}
+        </Table>
+      )}
 
       {actionLoan ? (
-        <div className="modal-backdrop" role="presentation" onClick={closeAction}>
-          <section
-            className="modal-card"
-            role="dialog"
-            aria-modal="true"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <h2>
-              {actionLoan.nextStatus} loan #{actionLoan.id}
-            </h2>
-            <p>
-              Customer: {actionLoan.customer?.name} · {formatCurrency(actionLoan.loanAmount)}
-            </p>
-
-            <label className="field">
-              <span>
-                Remarks{actionLoan.nextStatus === 'Rejected' ? ' (required)' : ' (optional)'}
-              </span>
-              <textarea
-                rows="4"
-                value={remarks}
-                onChange={(event) => setRemarks(event.target.value)}
-                placeholder="Add review notes or rejection reason"
-              />
-            </label>
-
-            <div className="modal-actions">
-              <button type="button" className="secondary-button" onClick={closeAction}>
+        <Modal
+          title={`${actionLoan.nextStatus} loan #${actionLoan.id}`}
+          description={`Customer: ${actionLoan.customer?.name} · ${formatCurrency(actionLoan.loanAmount)}`}
+          onClose={closeAction}
+          actions={
+            <>
+              <Button variant="secondary" onClick={closeAction}>
                 Cancel
-              </button>
-              <button type="button" onClick={handleStatusUpdate} disabled={submitting}>
+              </Button>
+              <Button onClick={handleStatusUpdate} disabled={submitting}>
                 {submitting ? 'Saving…' : `Confirm ${actionLoan.nextStatus}`}
-              </button>
-            </div>
-          </section>
-        </div>
+              </Button>
+            </>
+          }
+        >
+          <FormField
+            label={`Remarks${actionLoan.nextStatus === 'Rejected' ? ' (required)' : ' (optional)'}`}
+          >
+            <textarea
+              rows="4"
+              value={remarks}
+              onChange={(event) => setRemarks(event.target.value)}
+              placeholder="Add review notes or rejection reason"
+            />
+          </FormField>
+        </Modal>
       ) : null}
-    </main>
+    </>
   );
 };
 

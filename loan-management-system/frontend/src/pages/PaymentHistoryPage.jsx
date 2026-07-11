@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import LoanPaymentsSection from '../components/LoanPaymentsSection';
+import Loader from '../components/ui/Loader';
+import PageHeader from '../components/layout/PageHeader';
 import { getLoanById } from '../services/loan.service';
 import { formatCurrency } from '../utils/format';
-import './PaymentHistoryPage.css';
 
 const PaymentHistoryPage = () => {
   const { id } = useParams();
@@ -30,32 +31,30 @@ const PaymentHistoryPage = () => {
   }, [loadLoan]);
 
   if (loading) {
-    return <main className="payment-history-page">Loading payment history…</main>;
+    return <Loader fullPage label="Loading payment history…" />;
   }
 
   if (error || !loan) {
     return (
-      <main className="payment-history-page">
+      <>
         <Link to="/dashboard" className="back-link">
           ← My Loans
         </Link>
-        <p className="history-error">{error || 'Loan not found'}</p>
-      </main>
+        <p className="page-error">{error || 'Loan not found'}</p>
+      </>
     );
   }
 
   return (
-    <main className="payment-history-page">
+    <>
       <Link to={`/loans/${loan.id}`} className="back-link">
         ← Loan details
       </Link>
 
-      <header className="history-header">
-        <h1>Payment History</h1>
-        <p>
-          {loan.purpose} · {formatCurrency(loan.loanAmount)}
-        </p>
-      </header>
+      <PageHeader
+        title="Payment History"
+        description={`${loan.purpose} · ${formatCurrency(loan.loanAmount)}`}
+      />
 
       <LoanPaymentsSection
         loanId={loan.id}
@@ -63,7 +62,7 @@ const PaymentHistoryPage = () => {
         outstandingBalance={loan.outstandingBalance}
         onPaymentRecorded={loadLoan}
       />
-    </main>
+    </>
   );
 };
 

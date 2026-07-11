@@ -1,47 +1,53 @@
 import { Link } from 'react-router-dom';
-import statusClassName from '../utils/status';
+import Card from '../components/ui/Card';
+import Loader from '../components/ui/Loader';
+import StatusBadge from '../components/ui/StatusBadge';
+import PageHeader from '../components/layout/PageHeader';
 import { formatCurrency } from '../utils/format';
-import './CustomerDashboardPage.css';
 
 const CustomerDashboardPage = ({ loans, loading, error }) => {
   return (
-    <main className="customer-dashboard">
-      <header className="dashboard-header">
-        <div>
-          <Link to="/" className="back-link">
-            ← Home
+    <>
+      <PageHeader
+        title="My Loans"
+        description="Track application status, approval remarks, EMI, and outstanding balance."
+        actions={
+          <Link to="/apply-loan" className="btn btn-primary">
+            Apply for loan
           </Link>
-          <h1>My Loans</h1>
-          <p>Track application status, approval remarks, EMI, and outstanding balance.</p>
-        </div>
-      </header>
+        }
+      />
 
-      {error ? <p className="dashboard-error">{error}</p> : null}
+      {error ? <p className="page-error">{error}</p> : null}
 
       {loading ? (
-        <p>Loading your loans…</p>
+        <Loader fullPage label="Loading your loans…" />
       ) : loans.length === 0 ? (
-        <section className="empty-state">
-          <h2>No loans yet</h2>
-          <p>Apply for a loan to start tracking your application status here.</p>
-        </section>
+        <Card title="No loans yet" subtitle="Start by submitting your first application">
+          <p className="muted-text">
+            Apply for a loan to start tracking your application status here.
+          </p>
+          <div className="hero-actions">
+            <Link to="/apply-loan" className="btn btn-primary">
+              Apply for loan
+            </Link>
+          </div>
+        </Card>
       ) : (
-        <section className="loan-card-grid">
+        <div className="grid-auto">
           {loans.map((loan) => (
-            <article key={loan.id} className="loan-card">
+            <Card key={loan.id}>
               <div className="loan-card-top">
-                <span className={`status-badge status-${statusClassName(loan.status)}`}>
-                  {loan.status}
-                </span>
+                <StatusBadge status={loan.status} />
                 <span className="loan-date">
                   {new Date(loan.createdAt).toLocaleDateString('en-IN')}
                 </span>
               </div>
 
-              <h2>{formatCurrency(loan.loanAmount)}</h2>
+              <h2 className="loan-amount">{formatCurrency(loan.loanAmount)}</h2>
               <p className="loan-purpose">{loan.purpose}</p>
 
-              <dl className="loan-card-stats">
+              <dl className="stat-grid">
                 <div>
                   <dt>Interest</dt>
                   <dd>{loan.interestRate}%</dd>
@@ -64,21 +70,21 @@ const CustomerDashboardPage = ({ loans, loading, error }) => {
                 </div>
               </dl>
 
-              {loan.remarks ? <p className="loan-remarks">Remarks: {loan.remarks}</p> : null}
-
-              <Link to={`/loans/${loan.id}`} className="loan-detail-link">
-                View details
-              </Link>
-              {loan.status === 'Approved' ? (
-                <Link to={`/loans/${loan.id}/payments`} className="loan-detail-link">
-                  Payment history
-                </Link>
+              {loan.remarks ? (
+                <p className="remarks-box">Remarks: {loan.remarks}</p>
               ) : null}
-            </article>
+
+              <div className="card-actions">
+                <Link to={`/loans/${loan.id}`}>View details</Link>
+                {loan.status === 'Approved' ? (
+                  <Link to={`/loans/${loan.id}/payments`}>Payment history</Link>
+                ) : null}
+              </div>
+            </Card>
           ))}
-        </section>
+        </div>
       )}
-    </main>
+    </>
   );
 };
 
