@@ -78,6 +78,13 @@ module.exports = (sequelize) => {
           key: 'id',
         },
       },
+      remarks: {
+        type: DataTypes.STRING(500),
+        allowNull: true,
+        validate: {
+          len: { args: [0, 500], msg: 'Remarks cannot exceed 500 characters' },
+        },
+      },
     },
     {
       tableName: 'loans',

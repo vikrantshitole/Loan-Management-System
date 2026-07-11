@@ -1,9 +1,11 @@
 const { Op } = require('sequelize');
-const { Loan, User } = require('../models');
+const { Loan } = require('../models');
 const AppError = require('../utils/AppError');
 const { LOAN_STATUS, USER_ROLES } = require('../utils/constants');
+const { getAdminLoanIncludes, getCustomerLoanIncludes } = require('../utils/loanIncludes');
 const { toPublicLoan, toPublicLoanList } = require('../utils/loan.mapper');
 const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
+const { validateStatusTransition, requiresRemarks } = require('../utils/loanStatus');
 const emiService = require('./emi.service');
 
 const ACTIVE_APPLICATION_STATUSES = [LOAN_STATUS.PENDING, LOAN_STATUS.UNDER_REVIEW];
@@ -46,18 +48,16 @@ const buildLoanQuery = (user, query) => {
   return where;
 };
 
+const getLoanIncludes = (user) =>
+  user.role === USER_ROLES.ADMIN ? getAdminLoanIncludes() : getCustomerLoanIncludes();
+
 const getLoans = async (user, query = {}) => {
   const { page, limit, offset } = parsePagination(query);
   const where = buildLoanQuery(user, query);
 
-  const include =
-    user.role === USER_ROLES.ADMIN
-      ? [{ model: User, as: 'customer', attributes: ['id', 'name', 'email'] }]
-      : [];
-
   const { rows, count } = await Loan.findAndCountAll({
     where,
-    include,
+    include: getLoanIncludes(user),
     limit,
     offset,
     order: [['createdAt', 'DESC']],
@@ -70,12 +70,9 @@ const getLoans = async (user, query = {}) => {
 };
 
 const getLoanById = async (user, loanId) => {
-  const include =
-    user.role === USER_ROLES.ADMIN
-      ? [{ model: User, as: 'customer', attributes: ['id', 'name', 'email'] }]
-      : [];
-
-  const loan = await Loan.findByPk(loanId, { include });
+  const loan = await Loan.findByPk(loanId, {
+    include: getLoanIncludes(user),
+  });
 
   if (!loan) {
     throw AppError.notFound('Loan not found');
@@ -88,8 +85,32 @@ const getLoanById = async (user, loanId) => {
   return toPublicLoan(loan);
 };
 
-const updateLoanStatus = async (_admin, _loanId, _payload) => {
-  throw AppError.notImplemented('Loan approval workflow will be implemented in Stage 8');
+const updateLoanStatus = async (admin, loanId, { status, remarks }) => {
+  const loan = await Loan.findByPk(loanId, {
+    include: getAdminLoanIncludes(),
+  });
+
+  if (!loan) {
+    throw AppError.notFound('Loan not found');
+  }
+
+  validateStatusTransition(loan.status, status);
+
+  const normalizedRemarks = remarks?.trim() || null;
+
+  if (requiresRemarks(status) && !normalizedRemarks) {
+    throw AppError.badRequest('Remarks are required when rejecting a loan');
+  }
+
+  await loan.update({
+    status,
+    remarks: normalizedRemarks,
+    approvedBy: admin.id,
+  });
+
+  await loan.reload({ include: getAdminLoanIncludes() });
+
+  return toPublicLoan(loan);
 };
 
 const calculateEmi = async (payload) => emiService.calculateEmiBreakdown(payload);

@@ -1,5 +1,14 @@
 const parseDecimal = (value) => (value === null || value === undefined ? null : Number(value));
 
+const toPublicUserRef = (user) =>
+  user
+    ? {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      }
+    : undefined;
+
 const toPublicLoan = (loan) => ({
   id: loan.id,
   userId: loan.userId,
@@ -8,15 +17,11 @@ const toPublicLoan = (loan) => ({
   durationMonths: loan.durationMonths,
   purpose: loan.purpose,
   status: loan.status,
+  remarks: loan.remarks,
   approvedBy: loan.approvedBy,
   createdAt: loan.createdAt,
-  customer: loan.customer
-    ? {
-        id: loan.customer.id,
-        name: loan.customer.name,
-        email: loan.customer.email,
-      }
-    : undefined,
+  customer: toPublicUserRef(loan.customer),
+  approver: toPublicUserRef(loan.approver),
 });
 
 const toPublicLoanList = (loans) => loans.map(toPublicLoan);

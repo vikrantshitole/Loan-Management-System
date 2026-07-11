@@ -21,6 +21,7 @@ CREATE TABLE loans (
     purpose         VARCHAR(500) NOT NULL,
     status          loan_status NOT NULL DEFAULT 'Pending',
     approved_by     INTEGER REFERENCES users(id) ON DELETE SET NULL,
+    remarks         VARCHAR(500),
     created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
