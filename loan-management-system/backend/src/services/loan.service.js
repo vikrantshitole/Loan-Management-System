@@ -3,10 +3,11 @@ const { Loan } = require('../models');
 const AppError = require('../utils/AppError');
 const { LOAN_STATUS, USER_ROLES } = require('../utils/constants');
 const { getAdminLoanIncludes, getCustomerLoanIncludes } = require('../utils/loanIncludes');
-const { toPublicLoan, toPublicLoanList } = require('../utils/loan.mapper');
+const { toPublicLoan, toPublicLoanList, toLoanStatusDetail } = require('../utils/loan.mapper');
 const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
 const { validateStatusTransition, requiresRemarks } = require('../utils/loanStatus');
 const emiService = require('./emi.service');
+const loanSummaryService = require('./loanSummary.service');
 
 const ACTIVE_APPLICATION_STATUSES = [LOAN_STATUS.PENDING, LOAN_STATUS.UNDER_REVIEW];
 
@@ -31,7 +32,9 @@ const applyForLoan = async (user, payload) => {
     status: LOAN_STATUS.PENDING,
   });
 
-  return toPublicLoan(loan);
+  const summary = await loanSummaryService.getSummaryForLoan(loan);
+
+  return toPublicLoan(loan, summary);
 };
 
 const buildLoanQuery = (user, query) => {
@@ -63,8 +66,10 @@ const getLoans = async (user, query = {}) => {
     order: [['createdAt', 'DESC']],
   });
 
+  const summaries = await loanSummaryService.getSummariesForLoans(rows);
+
   return {
-    loans: toPublicLoanList(rows),
+    loans: toPublicLoanList(rows, summaries),
     meta: buildPaginationMeta({ page, limit, total: count }),
   };
 };
@@ -82,7 +87,9 @@ const getLoanById = async (user, loanId) => {
     throw AppError.forbidden('You can only view your own loan applications');
   }
 
-  return toPublicLoan(loan);
+  const summary = await loanSummaryService.getSummaryForLoan(loan);
+
+  return toLoanStatusDetail(loan, summary);
 };
 
 const updateLoanStatus = async (admin, loanId, { status, remarks }) => {
@@ -110,7 +117,9 @@ const updateLoanStatus = async (admin, loanId, { status, remarks }) => {
 
   await loan.reload({ include: getAdminLoanIncludes() });
 
-  return toPublicLoan(loan);
+  const summary = await loanSummaryService.getSummaryForLoan(loan);
+
+  return toLoanStatusDetail(loan, summary);
 };
 
 const calculateEmi = async (payload) => emiService.calculateEmiBreakdown(payload);
