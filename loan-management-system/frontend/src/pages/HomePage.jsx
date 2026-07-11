@@ -28,6 +28,7 @@ const HomePage = () => {
       </p>
       <nav className="home-nav">
         <Link to="/emi-calculator">EMI Calculator</Link>
+        <Link to="/login">Admin Login</Link>
       </nav>
     </main>
   );
