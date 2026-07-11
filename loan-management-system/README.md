@@ -7,7 +7,7 @@ Full-stack loan management application with customer applications, admin approva
 | Layer    | Technology                          |
 |----------|-------------------------------------|
 | Frontend | React 19, Vite, React Router, Axios |
-| Backend  | Node.js, Express, MongoDB, Mongoose |
+| Backend  | Node.js, Express, PostgreSQL, Sequelize |
 | Auth     | JWT, bcryptjs                       |
 
 ## Project Structure
@@ -24,6 +24,7 @@ loan-management-system/
 │       ├── utils/
 │       └── routes/
 └── backend/           # REST API
+    ├── database/      # SQL schema reference
     └── src/
         ├── controllers/
         ├── routes/
@@ -39,11 +40,14 @@ loan-management-system/
 ### Prerequisites
 
 - Node.js 18+
-- MongoDB running locally (or a remote connection string)
+- PostgreSQL running locally (or a remote connection string)
 
 ### Backend
 
 ```bash
+# Create the database (first time only)
+createdb loan_management
+
 cd backend
 cp .env.example .env
 npm install

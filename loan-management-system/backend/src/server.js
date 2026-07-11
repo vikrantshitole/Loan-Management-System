@@ -1,6 +1,8 @@
 const app = require('./app');
-const connectDB = require('./config/db');
+const { connectDB } = require('./config/db');
 const env = require('./config/env');
+
+require('./models');
 
 const startServer = async () => {
   try {
