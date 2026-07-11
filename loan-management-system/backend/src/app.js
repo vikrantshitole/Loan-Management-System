@@ -15,7 +15,7 @@ app.use('/api', routes);
 app.use((_req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: 'The requested resource was not found',
   });
 });
 
