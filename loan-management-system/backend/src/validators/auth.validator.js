@@ -19,10 +19,6 @@ const registerRules = [
     .withMessage('Password is required')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters'),
-  body('role')
-    .optional()
-    .isIn(['customer', 'admin'])
-    .withMessage('Role must be either customer or admin'),
 ];
 
 const loginRules = [

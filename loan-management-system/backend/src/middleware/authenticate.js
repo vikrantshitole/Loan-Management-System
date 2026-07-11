@@ -1,6 +1,5 @@
-const jwt = require('jsonwebtoken');
-const env = require('../config/env');
 const AppError = require('../utils/AppError');
+const { verifyAccessToken } = require('../utils/token');
 const { User } = require('../models');
 
 const authenticate = async (req, _res, next) => {
@@ -12,8 +11,12 @@ const authenticate = async (req, _res, next) => {
 
   const token = authHeader.split(' ')[1];
 
+  if (!token) {
+    return next(AppError.unauthorized('Invalid or missing access token'));
+  }
+
   try {
-    const decoded = jwt.verify(token, env.jwtSecret);
+    const decoded = verifyAccessToken(token);
     const user = await User.findByPk(decoded.id);
 
     if (!user) {

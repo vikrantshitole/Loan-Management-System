@@ -1,36 +1,69 @@
+const { User } = require('../models');
 const AppError = require('../utils/AppError');
+const { hashPassword, comparePassword } = require('../utils/password');
+const { signAccessToken } = require('../utils/token');
+const { toAuthPayload, toPublicUser } = require('../utils/user.mapper');
+const { USER_ROLES } = require('../utils/constants');
 
-/**
- * @typedef {Object} RegisterInput
- * @property {string} name
- * @property {string} email
- * @property {string} password
- * @property {'customer' | 'admin'} [role]
- */
+const INVALID_CREDENTIALS_MESSAGE = 'Invalid email or password';
 
-/**
- * @typedef {Object} LoginInput
- * @property {string} email
- * @property {string} password
- */
+const register = async ({ name, email, password }) => {
+  const normalizedEmail = email.toLowerCase().trim();
 
-/**
- * Registers a new user account.
- * Stage 5: hash password, persist user, return JWT.
- */
-const register = async (_payload) => {
-  throw AppError.notImplemented('User registration will be implemented in Stage 5');
+  const existingUser = await User.findOne({ where: { email: normalizedEmail } });
+
+  if (existingUser) {
+    throw AppError.conflict('An account with this email already exists');
+  }
+
+  const hashedPassword = await hashPassword(password);
+
+  const user = await User.create({
+    name: name.trim(),
+    email: normalizedEmail,
+    password: hashedPassword,
+    role: USER_ROLES.CUSTOMER,
+  });
+
+  const token = signAccessToken(user);
+
+  return toAuthPayload(user, token);
 };
 
-/**
- * Authenticates a user and issues a JWT.
- * Stage 5: verify credentials, sign token.
- */
-const login = async (_payload) => {
-  throw AppError.notImplemented('User login will be implemented in Stage 5');
+const login = async ({ email, password }) => {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const user = await User.scope('withPassword').findOne({
+    where: { email: normalizedEmail },
+  });
+
+  if (!user) {
+    throw AppError.unauthorized(INVALID_CREDENTIALS_MESSAGE);
+  }
+
+  const isPasswordValid = await comparePassword(password, user.password);
+
+  if (!isPasswordValid) {
+    throw AppError.unauthorized(INVALID_CREDENTIALS_MESSAGE);
+  }
+
+  const token = signAccessToken(user);
+
+  return toAuthPayload(user, token);
+};
+
+const getCurrentUser = async (userId) => {
+  const user = await User.findByPk(userId);
+
+  if (!user) {
+    throw AppError.notFound('User not found');
+  }
+
+  return toPublicUser(user);
 };
 
 module.exports = {
   register,
   login,
+  getCurrentUser,
 };

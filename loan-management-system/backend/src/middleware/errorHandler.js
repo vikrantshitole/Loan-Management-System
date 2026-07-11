@@ -1,7 +1,7 @@
 const AppError = require('../utils/AppError');
 
 const errorHandler = (err, _req, res, _next) => {
-  if (err.name === 'SequelizeValidationError' || err.name === 'SequelizeUniqueConstraintError') {
+  if (err.name === 'SequelizeValidationError') {
     const errors = err.errors?.map((error) => ({
       field: error.path,
       message: error.message,
@@ -11,6 +11,15 @@ const errorHandler = (err, _req, res, _next) => {
       success: false,
       message: 'Database validation failed',
       errors,
+    });
+  }
+
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    const field = err.errors?.[0]?.path || 'field';
+
+    return res.status(409).json({
+      success: false,
+      message: `A record with this ${field} already exists`,
     });
   }
 

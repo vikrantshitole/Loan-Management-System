@@ -21,7 +21,17 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
+const getCurrentUser = asyncHandler(async (req, res) => {
+  const user = await authService.getCurrentUser(req.user.id);
+
+  return sendSuccess(res, {
+    data: { user },
+    message: 'Profile retrieved successfully',
+  });
+});
+
 module.exports = {
   register,
   login,
+  getCurrentUser,
 };
