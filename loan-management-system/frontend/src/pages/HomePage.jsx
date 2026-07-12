@@ -1,13 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Card from '../components/ui/Card';
+import PageHeader from '../components/layout/PageHeader';
 
 const HomePage = () => {
   const { isAuthenticated, isAdmin } = useAuth();
 
   return (
     <div className="public-page">
-      <PageHero
+      <PageHeader
         title="Loan Management System"
         description="Apply for loans, track approval status, calculate EMI, and manage payments in one place."
       />
@@ -56,12 +57,5 @@ const HomePage = () => {
     </div>
   );
 };
-
-const PageHero = ({ title, description }) => (
-  <header className="page-header">
-    <h1>{title}</h1>
-    <p>{description}</p>
-  </header>
-);
 
 export default HomePage;

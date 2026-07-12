@@ -108,4 +108,38 @@ describe('Authentication', () => {
     assert.equal(response.status, 401);
     assert.equal(response.body.success, false);
   });
+
+  it('rejects registration with invalid email format', async () => {
+    const response = await request(app).post('/api/register').send({
+      name: 'Invalid Email User',
+      email: 'not-an-email',
+      password: 'password123',
+    });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'email'));
+  });
+
+  it('rejects registration with short password', async () => {
+    const response = await request(app).post('/api/register').send({
+      name: 'Short Password User',
+      email: 'short.password@example.com',
+      password: '123',
+    });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'password'));
+  });
+
+  it('rejects login with missing password', async () => {
+    const response = await request(app).post('/api/login').send({
+      email: testUser.email,
+    });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'password'));
+  });
 });

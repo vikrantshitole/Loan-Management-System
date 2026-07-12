@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ProtectedLayout from '../components/ProtectedLayout';
+import ProtectedLayout from '../components/layout/ProtectedLayout';
 import PublicLayout from '../components/layout/PublicLayout';
 import HomePage from '../pages/HomePage';
 import EmiCalculatorPage from '../pages/EmiCalculatorPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import AdminDashboardPage from '../pages/AdminDashboardPage';
-import CustomerDashboardContainer from '../pages/CustomerDashboardContainer';
+import CustomerDashboardPage from '../pages/CustomerDashboardPage';
 import ApplyLoanPage from '../pages/ApplyLoanPage';
 import LoanStatusPage from '../pages/LoanStatusPage';
 import PaymentHistoryPage from '../pages/PaymentHistoryPage';
@@ -23,7 +23,7 @@ const AppRoutes = () => {
         </Route>
 
         <Route element={<ProtectedLayout />}>
-          <Route path="/dashboard" element={<CustomerDashboardContainer />} />
+          <Route path="/dashboard" element={<CustomerDashboardPage />} />
           <Route path="/apply-loan" element={<ApplyLoanPage />} />
           <Route path="/loans/:id/payments" element={<PaymentHistoryPage />} />
           <Route path="/loans/:id" element={<LoanStatusPage />} />

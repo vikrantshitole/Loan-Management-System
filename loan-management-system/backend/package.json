@@ -7,7 +7,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "lint": "eslint src/",
-    "test": "node --test --test-concurrency=1 tests/**/*.test.js"
+    "test": "node --test --test-concurrency=1 tests/**/*.test.js",
+    "test:e2e": "node --test --test-concurrency=1 tests/e2e-flow.test.js"
   },
   "keywords": [
     "loan",

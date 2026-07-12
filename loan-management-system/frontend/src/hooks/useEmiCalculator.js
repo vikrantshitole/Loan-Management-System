@@ -2,52 +2,16 @@ import { useEffect, useMemo, useState } from 'react';
 import { calculateEmi } from '../services/loan.service';
 import { calculateEmiBreakdown, isEmiInputComplete } from '../utils/emi';
 import { LOAN_LIMITS } from '../utils/format';
+import { validateEmiInputs } from '../utils/validation';
 
 const VERIFY_DEBOUNCE_MS = 400;
 
+// Debounced server verification keeps the live preview aligned with the API.
 const createInitialValues = () => ({
   loanAmount: '',
   interestRate: String(LOAN_LIMITS.defaultInterestRate),
   durationMonths: '',
 });
-
-const validateInputs = ({ loanAmount, interestRate, durationMonths }) => {
-  const errors = {};
-
-  const amount = Number(loanAmount);
-  const rate = Number(interestRate);
-  const tenure = Number(durationMonths);
-
-  if (loanAmount === '') {
-    errors.loanAmount = 'Loan amount is required';
-  } else if (!Number.isFinite(amount) || amount <= 0) {
-    errors.loanAmount = 'Enter a positive amount';
-  } else if (amount > LOAN_LIMITS.maxAmount) {
-    errors.loanAmount = `Amount cannot exceed ${LOAN_LIMITS.maxAmount.toLocaleString('en-IN')}`;
-  }
-
-  if (interestRate === '') {
-    errors.interestRate = 'Interest rate is required';
-  } else if (
-    !Number.isFinite(rate) ||
-    rate < LOAN_LIMITS.minInterestRate ||
-    rate > LOAN_LIMITS.maxInterestRate
-  ) {
-    errors.interestRate = `Rate must be between ${LOAN_LIMITS.minInterestRate}% and ${LOAN_LIMITS.maxInterestRate}%`;
-  }
-
-  if (durationMonths === '') {
-    errors.durationMonths = 'Duration is required';
-  } else if (
-    !Number.isInteger(tenure) ||
-    tenure < LOAN_LIMITS.minDurationMonths ||
-    tenure > LOAN_LIMITS.maxDurationMonths
-  ) {
-    errors.durationMonths = `Duration must be ${LOAN_LIMITS.minDurationMonths}–${LOAN_LIMITS.maxDurationMonths} months`;
-  }
-
-  return errors;
-};
 
 const useEmiCalculator = () => {
   const [values, setValues] = useState(createInitialValues);
@@ -56,7 +20,7 @@ const useEmiCalculator = () => {
   const [verifyStatus, setVerifyStatus] = useState('idle');
   const [verifyError, setVerifyError] = useState(null);
 
-  const errors = useMemo(() => validateInputs(values), [values]);
+  const errors = useMemo(() => validateEmiInputs(values), [values]);
   const isValid = Object.keys(errors).length === 0;
 
   const liveResult = useMemo(() => {

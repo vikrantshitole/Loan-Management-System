@@ -110,7 +110,8 @@ describe('Loan Approval Workflow', () => {
       .send({ status: 'Rejected' });
 
     assert.equal(response.status, 400);
-    assert.equal(response.body.message, 'Remarks are required when rejecting a loan');
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'remarks'));
   });
 
   it('allows admin to reject a pending loan with remarks', async () => {

@@ -19,6 +19,5 @@ router.get('/health', (_req, res) => {
 router.use(authRoutes);
 router.use('/loan', loanRoutes);
 router.use('/payments', paymentRoutes);
-router.use('/payment', paymentRoutes);
 
 module.exports = router;

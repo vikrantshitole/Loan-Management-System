@@ -41,5 +41,15 @@ describe('EMI API', () => {
 
     assert.equal(response.status, 400);
     assert.equal(response.body.success, false);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'loanAmount'));
+  });
+
+  it('returns field errors for missing EMI fields', async () => {
+    const response = await request(app).post('/api/loan/calculate-emi').send({});
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.length >= 3);
   });
 });

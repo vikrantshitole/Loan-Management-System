@@ -55,7 +55,7 @@ describe('Payment History', () => {
 
   it('records a payment against an approved loan', async () => {
     const response = await request(app)
-      .post('/api/payment')
+      .post('/api/payments')
       .set('Authorization', `Bearer ${customerToken}`)
       .send({
         loanId,
@@ -71,7 +71,7 @@ describe('Payment History', () => {
 
   it('lists payment history newest first with totals', async () => {
     await request(app)
-      .post('/api/payment')
+      .post('/api/payments')
       .set('Authorization', `Bearer ${customerToken}`)
       .send({
         loanId,
@@ -95,7 +95,7 @@ describe('Payment History', () => {
 
   it('rejects payment above outstanding balance', async () => {
     const response = await request(app)
-      .post('/api/payment')
+      .post('/api/payments')
       .set('Authorization', `Bearer ${customerToken}`)
       .send({
         loanId,
@@ -116,7 +116,7 @@ describe('Payment History', () => {
       });
 
     const response = await request(app)
-      .post('/api/payment')
+      .post('/api/payments')
       .set('Authorization', `Bearer ${customerToken}`)
       .send({
         loanId: pendingApplication.body.data.id,
@@ -150,5 +150,52 @@ describe('Payment History', () => {
     assert.equal(response.status, 200);
     assert.equal(response.body.data.loanId, loanId);
     assert.ok(response.body.data.payments.length >= 2);
+  });
+
+  it('rejects payment with invalid amount', async () => {
+    const response = await request(app)
+      .post('/api/payments')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        loanId,
+        amount: 0,
+      });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'amount'));
+  });
+
+  it('rejects payment with missing loanId', async () => {
+    const response = await request(app)
+      .post('/api/payments')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        amount: 1000,
+      });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'loanId'));
+  });
+
+  it('rejects unauthenticated payment requests', async () => {
+    const response = await request(app).post('/api/payments').send({
+      loanId,
+      amount: 1000,
+    });
+
+    assert.equal(response.status, 401);
+    assert.equal(response.body.success, false);
+  });
+
+  it('rejects invalid payment history loan id', async () => {
+    const response = await request(app)
+      .get('/api/payments/not-a-number')
+      .set('Authorization', `Bearer ${customerToken}`);
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'loanId'));
   });
 });

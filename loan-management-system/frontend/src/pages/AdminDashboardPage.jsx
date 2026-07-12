@@ -8,6 +8,7 @@ import PageHeader from '../components/layout/PageHeader';
 import StatusBadge from '../components/ui/StatusBadge';
 import Table from '../components/ui/Table';
 import { formatCurrency } from '../utils/format';
+import { mapApiFieldErrors, validateRemarks } from '../utils/validation';
 
 const STATUS_FILTERS = ['All', 'Pending', 'Under Review', 'Approved', 'Rejected'];
 
@@ -29,6 +30,7 @@ const AdminDashboardPage = () => {
   const [error, setError] = useState('');
   const [actionLoan, setActionLoan] = useState(null);
   const [remarks, setRemarks] = useState('');
+  const [modalError, setModalError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const loadLoans = useCallback(async () => {
@@ -37,8 +39,8 @@ const AdminDashboardPage = () => {
 
     try {
       const params = statusFilter === 'All' ? {} : { status: statusFilter };
-      const result = await getLoans(params);
-      setLoans(result.loans);
+      const data = await getLoans(params);
+      setLoans(data);
     } catch (loadError) {
       setError(loadError.response?.data?.message || 'Unable to load loans');
       setLoans([]);
@@ -54,11 +56,13 @@ const AdminDashboardPage = () => {
   const openAction = (loan, nextStatus) => {
     setActionLoan({ ...loan, nextStatus });
     setRemarks(loan.remarks || '');
+    setModalError('');
   };
 
   const closeAction = () => {
     setActionLoan(null);
     setRemarks('');
+    setModalError('');
   };
 
   const handleStatusUpdate = async () => {
@@ -66,8 +70,17 @@ const AdminDashboardPage = () => {
       return;
     }
 
+    const validationErrors = validateRemarks(remarks, {
+      required: actionLoan.nextStatus === 'Rejected',
+    });
+
+    if (Object.keys(validationErrors).length > 0) {
+      setModalError(validationErrors.remarks);
+      return;
+    }
+
     setSubmitting(true);
-    setError('');
+    setModalError('');
 
     try {
       await updateLoanStatus(actionLoan.id, {
@@ -77,7 +90,12 @@ const AdminDashboardPage = () => {
       closeAction();
       await loadLoans();
     } catch (updateError) {
-      setError(updateError.response?.data?.message || 'Unable to update loan status');
+      const apiErrors = mapApiFieldErrors(updateError.response?.data?.errors);
+      setModalError(
+        apiErrors.remarks ||
+          updateError.response?.data?.message ||
+          'Unable to update loan status'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -186,11 +204,17 @@ const AdminDashboardPage = () => {
         >
           <FormField
             label={`Remarks${actionLoan.nextStatus === 'Rejected' ? ' (required)' : ' (optional)'}`}
+            error={modalError}
           >
             <textarea
               rows="4"
               value={remarks}
-              onChange={(event) => setRemarks(event.target.value)}
+              onChange={(event) => {
+                setRemarks(event.target.value);
+                if (modalError) {
+                  setModalError('');
+                }
+              }}
               placeholder="Add review notes or rejection reason"
             />
           </FormField>

@@ -17,8 +17,8 @@ const registerRules = [
   body('password')
     .notEmpty()
     .withMessage('Password is required')
-    .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters'),
+    .isLength({ min: 6, max: 128 })
+    .withMessage('Password must be between 6 and 128 characters'),
 ];
 
 const loginRules = [

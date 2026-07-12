@@ -13,7 +13,7 @@ const createPayment = asyncHandler(async (req, res) => {
 });
 
 const getPaymentsByLoan = asyncHandler(async (req, res) => {
-  const history = await paymentService.getPaymentsByLoan(req.user, req.params.loanId);
+  const history = await paymentService.getPaymentHistory(req.user, req.params.loanId);
 
   return sendSuccess(res, {
     data: history,

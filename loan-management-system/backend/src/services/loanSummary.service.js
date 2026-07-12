@@ -48,6 +48,7 @@ const getSummaryForLoan = async (loan) => {
     return buildApprovedSummary(loan);
   }
 
+  // Pending/under-review loans show projected EMI only; rejected loans clear financial fields.
   if (loan.status === LOAN_STATUS.PENDING || loan.status === LOAN_STATUS.UNDER_REVIEW) {
     return buildPendingSummary(loan);
   }

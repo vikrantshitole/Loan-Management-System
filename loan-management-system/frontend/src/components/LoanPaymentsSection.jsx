@@ -6,6 +6,7 @@ import FormField from './ui/FormField';
 import Loader from './ui/Loader';
 import Table from './ui/Table';
 import { formatCurrency } from '../utils/format';
+import { mapApiFieldErrors, validatePaymentAmount, visibleError } from '../utils/validation';
 
 const PAYMENT_COLUMNS = [
   { key: 'date', label: 'Date' },
@@ -16,19 +17,23 @@ const PAYMENT_COLUMNS = [
 const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPaymentRecorded }) => {
   const [history, setHistory] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [loadError, setLoadError] = useState('');
   const [amount, setAmount] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   const loadHistory = useCallback(async () => {
     setLoading(true);
-    setError('');
+    setLoadError('');
 
     try {
       const data = await getPaymentHistory(loanId);
       setHistory(data);
-    } catch (loadError) {
-      setError(loadError.response?.data?.message || 'Unable to load payment history');
+    } catch (error) {
+      setLoadError(error.response?.data?.message || 'Unable to load payment history');
     } finally {
       setLoading(false);
     }
@@ -43,8 +48,17 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitted(true);
+
+    const validationErrors = validatePaymentAmount(amount, outstandingBalance);
+    setFieldErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
+    }
+
     setSubmitting(true);
-    setError('');
+    setSubmitError('');
 
     try {
       await recordPayment({
@@ -52,10 +66,17 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
         amount: Number(amount),
       });
       setAmount('');
+      setSubmitted(false);
+      setTouched({});
+      setFieldErrors({});
       await loadHistory();
       onPaymentRecorded?.();
-    } catch (submitError) {
-      setError(submitError.response?.data?.message || 'Unable to record payment');
+    } catch (error) {
+      const apiErrors = mapApiFieldErrors(error.response?.data?.errors);
+      if (Object.keys(apiErrors).length > 0) {
+        setFieldErrors(apiErrors);
+      }
+      setSubmitError(error.response?.data?.message || 'Unable to record payment');
     } finally {
       setSubmitting(false);
     }
@@ -78,11 +99,14 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
         ) : null}
       </div>
 
-      {error ? <p className="page-error">{error}</p> : null}
+      {loadError ? <p className="page-error">{loadError}</p> : null}
 
       {canAddPayment ? (
-        <form className="payment-form" onSubmit={handleSubmit}>
-          <FormField label="Payment amount">
+        <form className="payment-form" onSubmit={handleSubmit} noValidate>
+          <FormField
+            label="Payment amount"
+            error={visibleError(fieldErrors, 'amount', touched, submitted)}
+          >
             <input
               type="number"
               min="1"
@@ -90,10 +114,11 @@ const LoanPaymentsSection = ({ loanId, loanStatus, outstandingBalance, onPayment
               step="100"
               value={amount}
               onChange={(event) => setAmount(event.target.value)}
+              onBlur={() => setTouched((current) => ({ ...current, amount: true }))}
               placeholder={`Max ${formatCurrency(outstandingBalance)}`}
-              required
             />
           </FormField>
+          {submitError ? <p className="form-error">{submitError}</p> : null}
           <Button type="submit" disabled={submitting}>
             {submitting ? 'Recording…' : 'Add payment'}
           </Button>

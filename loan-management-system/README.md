@@ -77,6 +77,11 @@ See `backend/.env.example` and `frontend/.env.example`.
 |-----------|----------------|--------------------|
 | backend   | `npm run dev`  | Start API (nodemon)|
 | backend   | `npm run lint` | ESLint             |
+| backend   | `npm test`     | Run all API tests  |
+| backend   | `npm run test:e2e` | Run end-to-end flow tests |
+
+API documentation: `backend/docs/openapi.yaml`
+
 | frontend  | `npm run dev`  | Start Vite dev     |
 | frontend  | `npm run lint` | Oxlint             |
 | frontend  | `npm run build`| Production build   |

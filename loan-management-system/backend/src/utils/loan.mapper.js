@@ -31,10 +31,7 @@ const toPublicLoan = (loan, summary = null) => ({
 const toPublicLoanList = (loans, summaries = {}) =>
   loans.map((loan) => toPublicLoan(loan, summaries[loan.id] || null));
 
-const toLoanStatusDetail = (loan, summary) => toPublicLoan(loan, summary);
-
 module.exports = {
   toPublicLoan,
   toPublicLoanList,
-  toLoanStatusDetail,
 };

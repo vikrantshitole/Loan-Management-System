@@ -1,9 +1,8 @@
+const AppError = require('../utils/AppError');
+
 /**
- * Standard reducing-balance EMI formula:
- *
- *   EMI = P × R × (1+R)^N / ((1+R)^N − 1)
- *
- * P = principal, R = monthly rate (annual% / 12 / 100), N = tenure in months
+ * Standard reducing-balance EMI formula.
+ * Keep calculation logic aligned with frontend/src/utils/emi.js.
  */
 
 const CURRENCY_PRECISION = 2;
@@ -25,15 +24,15 @@ const calculateEmiBreakdown = ({ loanAmount, interestRate, durationMonths }) => 
   const tenure = Number(durationMonths);
 
   if (!Number.isFinite(principal) || principal <= 0) {
-    throw new Error('Loan amount must be a positive number');
+    throw AppError.badRequest('Loan amount must be a positive number');
   }
 
   if (!Number.isFinite(annualRate) || annualRate < 0) {
-    throw new Error('Interest rate must be a non-negative number');
+    throw AppError.badRequest('Interest rate must be a non-negative number');
   }
 
   if (!Number.isInteger(tenure) || tenure <= 0) {
-    throw new Error('Duration must be a positive integer');
+    throw AppError.badRequest('Duration must be a positive integer');
   }
 
   const monthlyRate = toMonthlyRate(annualRate);
@@ -71,6 +70,5 @@ const calculateEmiBreakdown = ({ loanAmount, interestRate, durationMonths }) => 
 
 module.exports = {
   calculateEmiBreakdown,
-  toMonthlyRate,
   roundCurrency,
 };

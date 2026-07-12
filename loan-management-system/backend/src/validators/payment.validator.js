@@ -18,7 +18,14 @@ const createPaymentRules = [
   body('paymentDate')
     .optional()
     .isISO8601()
-    .withMessage('Payment date must be a valid ISO 8601 date'),
+    .withMessage('Payment date must be a valid ISO 8601 date')
+    .custom((value) => {
+      if (new Date(value) > new Date()) {
+        throw new Error('Payment date cannot be in the future');
+      }
+
+      return true;
+    }),
 ];
 
 module.exports = {

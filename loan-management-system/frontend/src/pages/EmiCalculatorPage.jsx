@@ -4,14 +4,7 @@ import Card from '../components/ui/Card';
 import FormField from '../components/ui/FormField';
 import PageHeader from '../components/layout/PageHeader';
 import { formatCurrency, LOAN_LIMITS } from '../utils/format';
-
-const FieldError = ({ show, message }) => {
-  if (!show || !message) {
-    return null;
-  }
-
-  return <p className="field-error">{message}</p>;
-};
+import { visibleError } from '../utils/validation';
 
 const EmiCalculatorPage = () => {
   const {
@@ -37,7 +30,10 @@ const EmiCalculatorPage = () => {
       <section className="emi-layout">
         <Card title="Loan inputs">
           <form onSubmit={(event) => event.preventDefault()} noValidate>
-            <FormField label="Loan amount">
+            <FormField
+              label="Loan amount"
+              error={visibleError(errors, 'loanAmount', touched, false)}
+            >
               <input
                 type="number"
                 name="loanAmount"
@@ -49,10 +45,12 @@ const EmiCalculatorPage = () => {
                 onBlur={() => touchField('loanAmount')}
                 placeholder="e.g. 500000"
               />
-              <FieldError show={touched.loanAmount} message={errors.loanAmount} />
             </FormField>
 
-            <FormField label="Annual interest rate (%)">
+            <FormField
+              label="Annual interest rate (%)"
+              error={visibleError(errors, 'interestRate', touched, false)}
+            >
               <input
                 type="number"
                 name="interestRate"
@@ -64,10 +62,12 @@ const EmiCalculatorPage = () => {
                 onBlur={() => touchField('interestRate')}
                 placeholder="e.g. 10"
               />
-              <FieldError show={touched.interestRate} message={errors.interestRate} />
             </FormField>
 
-            <FormField label="Duration (months)">
+            <FormField
+              label="Duration (months)"
+              error={visibleError(errors, 'durationMonths', touched, false)}
+            >
               <input
                 type="number"
                 name="durationMonths"
@@ -79,7 +79,6 @@ const EmiCalculatorPage = () => {
                 onBlur={() => touchField('durationMonths')}
                 placeholder="e.g. 24"
               />
-              <FieldError show={touched.durationMonths} message={errors.durationMonths} />
             </FormField>
 
             <Button type="button" variant="secondary" onClick={reset}>

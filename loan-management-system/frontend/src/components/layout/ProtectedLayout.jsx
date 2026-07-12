@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import AppLayout from './layout/AppLayout';
-import Loader from './ui/Loader';
+import { useAuth } from '../../context/AuthContext';
+import AppLayout from './AppLayout';
+import Loader from '../ui/Loader';
 
 const ProtectedLayout = ({ adminOnly = false }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();

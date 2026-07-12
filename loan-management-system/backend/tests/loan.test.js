@@ -95,6 +95,54 @@ describe('Loan Application', () => {
     assert.equal(response.body.success, false);
   });
 
+  it('rejects loan application with missing purpose', async () => {
+    const response = await request(app)
+      .post('/api/loan/apply')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        ...validLoanApplication,
+        purpose: '   ',
+      });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'purpose'));
+  });
+
+  it('rejects loan application with invalid interest rate', async () => {
+    const response = await request(app)
+      .post('/api/loan/apply')
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({
+        ...validLoanApplication,
+        interestRate: 0,
+      });
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'interestRate'));
+  });
+
+  it('prevents admin from applying for a loan', async () => {
+    const response = await request(app)
+      .post('/api/loan/apply')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(validLoanApplication);
+
+    assert.equal(response.status, 403);
+    assert.equal(response.body.success, false);
+  });
+
+  it('rejects invalid loan id parameter', async () => {
+    const response = await request(app)
+      .get('/api/loan/not-a-number')
+      .set('Authorization', `Bearer ${customerToken}`);
+
+    assert.equal(response.status, 400);
+    assert.equal(response.body.message, 'Validation failed');
+    assert.ok(response.body.errors.some((error) => error.field === 'id'));
+  });
+
   it('lists customer loans', async () => {
     const response = await request(app)
       .get('/api/loan')

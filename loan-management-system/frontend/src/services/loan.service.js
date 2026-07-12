@@ -7,10 +7,7 @@ export const calculateEmi = async (payload) => {
 
 export const getLoans = async (params = {}) => {
   const response = await api.get('/loan', { params });
-  return {
-    loans: response.data.data,
-    meta: response.data.meta,
-  };
+  return response.data.data;
 };
 
 export const getLoanById = async (loanId) => {

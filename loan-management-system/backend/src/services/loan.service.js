@@ -3,7 +3,7 @@ const { Loan } = require('../models');
 const AppError = require('../utils/AppError');
 const { LOAN_STATUS, USER_ROLES } = require('../utils/constants');
 const { getAdminLoanIncludes, getCustomerLoanIncludes } = require('../utils/loanIncludes');
-const { toPublicLoan, toPublicLoanList, toLoanStatusDetail } = require('../utils/loan.mapper');
+const { toPublicLoan, toPublicLoanList } = require('../utils/loan.mapper');
 const { parsePagination, buildPaginationMeta } = require('../utils/pagination');
 const { validateStatusTransition, requiresRemarks } = require('../utils/loanStatus');
 const emiService = require('./emi.service');
@@ -12,6 +12,7 @@ const loanSummaryService = require('./loanSummary.service');
 const ACTIVE_APPLICATION_STATUSES = [LOAN_STATUS.PENDING, LOAN_STATUS.UNDER_REVIEW];
 
 const applyForLoan = async (user, payload) => {
+  // One in-flight application per customer (Pending or Under Review).
   const existingApplication = await Loan.findOne({
     where: {
       userId: user.id,
@@ -89,7 +90,7 @@ const getLoanById = async (user, loanId) => {
 
   const summary = await loanSummaryService.getSummaryForLoan(loan);
 
-  return toLoanStatusDetail(loan, summary);
+  return toPublicLoan(loan, summary);
 };
 
 const updateLoanStatus = async (admin, loanId, { status, remarks }) => {
@@ -119,7 +120,7 @@ const updateLoanStatus = async (admin, loanId, { status, remarks }) => {
 
   const summary = await loanSummaryService.getSummaryForLoan(loan);
 
-  return toLoanStatusDetail(loan, summary);
+  return toPublicLoan(loan, summary);
 };
 
 const calculateEmi = async (payload) => emiService.calculateEmiBreakdown(payload);

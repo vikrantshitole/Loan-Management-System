@@ -1,6 +1,7 @@
 const AppError = require('./AppError');
 const { LOAN_STATUS } = require('./constants');
 
+// Loan status state machine: Pending → Under Review → Approved/Rejected (terminal).
 const ALLOWED_TRANSITIONS = {
   [LOAN_STATUS.PENDING]: [
     LOAN_STATUS.UNDER_REVIEW,
@@ -25,7 +26,6 @@ const validateStatusTransition = (currentStatus, nextStatus) => {
 const requiresRemarks = (status) => status === LOAN_STATUS.REJECTED;
 
 module.exports = {
-  ALLOWED_TRANSITIONS,
   validateStatusTransition,
   requiresRemarks,
 };

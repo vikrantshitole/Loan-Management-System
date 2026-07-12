@@ -66,7 +66,15 @@ const updateLoanStatusRules = [
     .isIn(LOAN_STATUS_VALUES)
     .withMessage(`Status must be one of: ${LOAN_STATUS_VALUES.join(', ')}`),
   body('remarks')
-    .optional()
+    .if((_, { req }) => req.body.status === 'Rejected')
+    .trim()
+    .notEmpty()
+    .withMessage('Remarks are required when rejecting a loan')
+    .isLength({ max: 500 })
+    .withMessage('Remarks cannot exceed 500 characters'),
+  body('remarks')
+    .if((_, { req }) => req.body.status !== 'Rejected')
+    .optional({ values: 'falsy' })
     .trim()
     .isLength({ max: 500 })
     .withMessage('Remarks cannot exceed 500 characters'),

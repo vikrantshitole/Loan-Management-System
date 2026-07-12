@@ -6,6 +6,6 @@ export const getPaymentHistory = async (loanId) => {
 };
 
 export const recordPayment = async (payload) => {
-  const response = await api.post('/payment', payload);
+  const response = await api.post('/payments', payload);
   return response.data.data;
 };

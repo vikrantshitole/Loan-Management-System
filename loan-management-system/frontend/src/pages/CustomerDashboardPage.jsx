@@ -1,11 +1,42 @@
-import { Link } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { getLoans } from '../services/loan.service';
 import Card from '../components/ui/Card';
 import Loader from '../components/ui/Loader';
-import StatusBadge from '../components/ui/StatusBadge';
 import PageHeader from '../components/layout/PageHeader';
+import StatusBadge from '../components/ui/StatusBadge';
 import { formatCurrency } from '../utils/format';
 
-const CustomerDashboardPage = ({ loans, loading, error }) => {
+const CustomerDashboardPage = () => {
+  const { isAdmin } = useAuth();
+  const [loans, setLoans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  const loadLoans = useCallback(async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await getLoans();
+      setLoans(data);
+    } catch (loadError) {
+      setError(loadError.response?.data?.message || 'Unable to load your loans');
+      setLoans([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadLoans();
+  }, [loadLoans]);
+
+  if (isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+
   return (
     <>
       <PageHeader

@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import AppLayout from './AppLayout';
 import Loader from '../ui/Loader';
 import Navbar from './Navbar';
-import Sidebar from './Sidebar';
 
 const PublicLayout = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -13,15 +13,9 @@ const PublicLayout = () => {
 
   if (isAuthenticated) {
     return (
-      <>
-        <Navbar />
-        <div className="app-shell">
-          <Sidebar />
-          <main className="app-content">
-            <Outlet />
-          </main>
-        </div>
-      </>
+      <AppLayout>
+        <Outlet />
+      </AppLayout>
     );
   }
 

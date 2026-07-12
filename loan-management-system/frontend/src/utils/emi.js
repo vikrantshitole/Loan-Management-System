@@ -1,6 +1,6 @@
 /**
- * Standard reducing-balance EMI:
- * EMI = P × R × (1+R)^N / ((1+R)^N − 1)
+ * Client-side EMI preview. Backend emi.service.js is authoritative.
+ * Keep calculation logic aligned with backend/src/services/emi.service.js.
  */
 
 const round = (value, precision) => {
@@ -8,7 +8,7 @@ const round = (value, precision) => {
   return Math.round((value + Number.EPSILON) * factor) / factor;
 };
 
-export const roundCurrency = (value) => round(value, 2);
+const roundCurrency = (value) => round(value, 2);
 
 export const calculateEmiBreakdown = ({ loanAmount, interestRate, durationMonths }) => {
   const principal = Number(loanAmount);

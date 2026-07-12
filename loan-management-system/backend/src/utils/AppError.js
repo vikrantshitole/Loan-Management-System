@@ -26,10 +26,6 @@ class AppError extends Error {
   static conflict(message) {
     return new AppError(message, 409);
   }
-
-  static notImplemented(message = 'This endpoint is not yet implemented') {
-    return new AppError(message, 501);
-  }
 }
 
 module.exports = AppError;

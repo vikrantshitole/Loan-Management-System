@@ -11,7 +11,6 @@ const env = {
   maxLoanAmount: Number(process.env.MAX_LOAN_AMOUNT) || 1000000,
   minLoanDurationMonths: Number(process.env.MIN_LOAN_DURATION_MONTHS) || 6,
   maxLoanDurationMonths: Number(process.env.MAX_LOAN_DURATION_MONTHS) || 360,
-  defaultInterestRate: Number(process.env.DEFAULT_INTEREST_RATE) || 10,
 };
 
 module.exports = env;

@@ -1,10 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { getLoanById } from '../services/loan.service';
 import LoanPaymentsSection from '../components/LoanPaymentsSection';
 import Card from '../components/ui/Card';
 import Loader from '../components/ui/Loader';
 import StatusBadge from '../components/ui/StatusBadge';
+import useLoan from '../hooks/useLoan';
 import { formatCurrency } from '../utils/format';
 
 const DetailItem = ({ label, value }) => (
@@ -16,27 +15,7 @@ const DetailItem = ({ label, value }) => (
 
 const LoanStatusPage = () => {
   const { id } = useParams();
-  const [loan, setLoan] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadLoan = useCallback(async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const data = await getLoanById(id);
-      setLoan(data);
-    } catch (loadError) {
-      setError(loadError.response?.data?.message || 'Unable to load loan status');
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
-
-  useEffect(() => {
-    loadLoan();
-  }, [loadLoan]);
+  const { loan, loading, error, reload } = useLoan(id, 'Unable to load loan status');
 
   if (loading) {
     return <Loader fullPage label="Loading loan status…" />;
@@ -112,7 +91,7 @@ const LoanStatusPage = () => {
           )}
 
           {loan.approver ? (
-            <p className="muted-text" style={{ marginTop: '1rem' }}>
+            <p className="muted-text mt-4">
               Reviewed by {loan.approver.name} ({loan.approver.email})
             </p>
           ) : null}
@@ -124,7 +103,7 @@ const LoanStatusPage = () => {
           loanId={loan.id}
           loanStatus={loan.status}
           outstandingBalance={loan.outstandingBalance}
-          onPaymentRecorded={loadLoan}
+          onPaymentRecorded={reload}
         />
       ) : null}
     </>

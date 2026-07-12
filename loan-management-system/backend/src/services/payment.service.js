@@ -71,6 +71,7 @@ const recordPayment = async (user, { loanId, amount, paymentDate }) => {
 
   const remainingBalance = roundCurrency(totals.remainingBalance - paymentAmount);
 
+  // Snapshot the balance after this payment for historical reporting.
   const payment = await Payment.create({
     loanId,
     amount: paymentAmount,
@@ -87,10 +88,7 @@ const recordPayment = async (user, { loanId, amount, paymentDate }) => {
   };
 };
 
-const getPaymentsByLoan = async (user, loanId) => getPaymentHistory(user, loanId);
-
 module.exports = {
   getPaymentHistory,
-  getPaymentsByLoan,
   recordPayment,
 };
